@@ -71,13 +71,16 @@ $template = & $getTemplate @params
 $perSheet = $template.CellsPerSheet
 Write-Host "  [2/5] template $($template.ProductName): $perSheet cells, margins L$($template.Margins.Left) R$($template.Margins.Right) T$($template.Margins.Top) B$($template.Margins.Bottom) pt"
 
-$sheetCount = [math]::Ceiling($entries.Count / $perSheet)
+# [int] is deliberate: [math]::Ceiling returns a double, which serializes into
+# the manifest as 2.0 rather than 2.
+$sheetCount = [int][math]::Ceiling($entries.Count / $perSheet)
 if ($sheetCount -eq 0) {
     Write-Host "FAILED: registry holds no codes." -ForegroundColor Red
     exit 1
 }
 
 # --- 3. build each sheet ----------------------------------------------------
+$suffix = if ($Guides) { '-proof' } else { '' }
 $manifest   = [System.Collections.Generic.List[object]]::new()
 $placements = [System.Collections.Generic.List[hashtable]]::new()
 $sheetPaths = [System.Collections.Generic.List[string]]::new()
@@ -108,7 +111,6 @@ for ($sheet = 1; $sheet -le $sheetCount; $sheet++) {
         })
     }
 
-    $suffix = if ($Guides) { '-proof' } else { '' }
     $sheetPath = Join-Path $OutputDirectory ("series-{0}-sheet-{1}{2}.pdf" -f $Series, $sheet, $suffix)
 
     $params = @{
@@ -141,7 +143,10 @@ if (-not $placed.Success) {
 Write-Host "  [4/5] recorded sheet and cell for $($placed.Updated) codes"
 
 # --- 5. write the manifest --------------------------------------------------
-$manifestPath = Join-Path $OutputDirectory ("series-{0}-sheet-manifest.json" -f $Series)
+# The guides run writes its own manifest. Without the suffix it would overwrite the
+# real sheet manifest with paths pointing at proof sheets, leaving the record for the
+# printed run describing files that must never go onto label stock.
+$manifestPath = Join-Path $OutputDirectory ("series-{0}-sheet-manifest{1}.json" -f $Series, $suffix)
 $manifestDocument = [ordered]@{
     kind          = 'label_sheet_manifest'
     series        = $Series
