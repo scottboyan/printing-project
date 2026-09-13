@@ -28,6 +28,17 @@ if (-not $normalized.IsValid) {
 }
 $canonical = $normalized.Canonical
 
+# Normalization settles alphabet and length. The check character is verified here as
+# well, because the output of this processor is printed onto physical stock: a code
+# that fails its own check character must never reach a label, and this is the last
+# place before the QR payload is built that can say so.
+$payload  = Get-ArtifactCodePart -CanonicalCode $canonical -Part 'Payload'
+$expected = Get-ArtifactCodeCheckCharacter -Payload $payload
+$actual   = Get-ArtifactCodePart -CanonicalCode $canonical -Part 'Check'
+if ($actual -ne $expected) {
+    throw "Cannot convert '$Code': check character is '$actual' but payload '$payload' computes '$expected'."
+}
+
 switch ($Format) {
     'Canonical' { return $canonical }
     'Display'   {
