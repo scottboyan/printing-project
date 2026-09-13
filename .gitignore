@@ -1,0 +1,6 @@
+# Build artifacts. Everything under out/ is reproducible from the registry
+# and the orchestrators, so none of it is committed.
+out/
+
+# data/series/ is deliberately NOT ignored: the mint registry is the system of
+# record for a series and is committed (IB0193 KDR-22, IB0192 R7).

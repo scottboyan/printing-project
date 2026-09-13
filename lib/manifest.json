@@ -1,0 +1,174 @@
+{
+  "schema_version": 1,
+  "kind": "vendored_dependency_manifest",
+  "spec": "IB0193 WP02.T01 / KDR-19",
+  "vendored_at": "2026-09-13",
+  "runtime": {
+    "powershell": "7.6.5",
+    "framework": ".NET 10.0.11",
+    "os": "Microsoft Windows 10.0.26200"
+  },
+  "notes": [
+    "Vendored for offline use. No network access is required after this point.",
+    "System.Security.Cryptography.Pkcs 8.0.1 is a declared PDFsharp dependency but ships in the .NET 10 shared framework, so it is deliberately not vendored.",
+    "QRCoder net6.0 build is used deliberately: the netstandard2.0 build carries a System.Drawing.Common dependency that the net6.0 build does not.",
+    "PDFsharp 6.x ships no default font resolver; the vendored DejaVu faces back the repository font resolver.",
+    "QR symbols are placed as 24bpp BMP (QRCoder BitmapByteQRCode). PDFsharp rejects QRCoder 1-bit PNG output with \"Unsupported image format\"."
+  ],
+  "assemblies": [
+    {
+      "file": "QRCoder.dll",
+      "package": "QRCoder",
+      "version": "1.8.0",
+      "target_framework": "net6.0",
+      "license": "MIT",
+      "purpose": "QR symbol generation (KDR-16)",
+      "sha256": "5cacb8e071ef6b355615e8cae1d02d94b9d191ec33db12a05d82099cddb16e9a",
+      "bytes": 204288,
+      "source": "https://api.nuget.org/v3-flatcontainer/qrcoder/1.8.0/qrcoder.1.8.0.nupkg",
+      "nupkg_sha256": "52f39e145c5467f6dd7660ece886a689818321f831c9b13f092a4fcb2e433312"
+    },
+    {
+      "file": "PdfSharp.dll",
+      "package": "PDFsharp",
+      "version": "6.2.4",
+      "target_framework": "net10.0",
+      "license": "MIT",
+      "purpose": "PDF composition and inspection (KDR-14)",
+      "sha256": "1a77754d9b06c077f339eb33c0cdef28927ae8ee46ecca84e7874b15dabc85a1",
+      "bytes": 794624,
+      "source": "https://api.nuget.org/v3-flatcontainer/pdfsharp/6.2.4/pdfsharp.6.2.4.nupkg",
+      "nupkg_sha256": "5647882339b327cbf6da9ea3f882efb335f8d602e6fd45323adf9e78da53cf67"
+    },
+    {
+      "file": "PdfSharp.Shared.dll",
+      "package": "PDFsharp",
+      "version": "6.2.4",
+      "target_framework": "net10.0",
+      "license": "MIT",
+      "purpose": "PDFsharp support assembly",
+      "sha256": "4b21196cf18cb3b971ec02d1f66f2da0d98d77aa5ed5767754f5de2cf36cb737",
+      "bytes": 23040,
+      "source": "https://api.nuget.org/v3-flatcontainer/pdfsharp/6.2.4/pdfsharp.6.2.4.nupkg",
+      "nupkg_sha256": "5647882339b327cbf6da9ea3f882efb335f8d602e6fd45323adf9e78da53cf67"
+    },
+    {
+      "file": "PdfSharp.System.dll",
+      "package": "PDFsharp",
+      "version": "6.2.4",
+      "target_framework": "net10.0",
+      "license": "MIT",
+      "purpose": "PDFsharp support assembly",
+      "sha256": "5e8dc5ed655d223be9f9b5b3dfecadb607b00e695c34c60aac4e037af9e557e6",
+      "bytes": 8192,
+      "source": "https://api.nuget.org/v3-flatcontainer/pdfsharp/6.2.4/pdfsharp.6.2.4.nupkg",
+      "nupkg_sha256": "5647882339b327cbf6da9ea3f882efb335f8d602e6fd45323adf9e78da53cf67"
+    },
+    {
+      "file": "Microsoft.Extensions.Logging.Abstractions.dll",
+      "package": "Microsoft.Extensions.Logging.Abstractions",
+      "version": "8.0.3",
+      "target_framework": "net8.0",
+      "license": "MIT",
+      "purpose": "PDFsharp transitive dependency",
+      "sha256": "bb853130f5afaf335be7858d661f8212ec653835100f5a4e3aa2c66a4d4f685d",
+      "bytes": 65288,
+      "source": "https://api.nuget.org/v3-flatcontainer/microsoft.extensions.logging.abstractions/8.0.3/microsoft.extensions.logging.abstractions.8.0.3.nupkg",
+      "nupkg_sha256": "e4c498d5a13051b4577a148f1d8c3470167215c507e2392069b75dc61322bb74"
+    },
+    {
+      "file": "Microsoft.Extensions.DependencyInjection.Abstractions.dll",
+      "package": "Microsoft.Extensions.DependencyInjection.Abstractions",
+      "version": "8.0.2",
+      "target_framework": "net8.0",
+      "license": "MIT",
+      "purpose": "Logging.Abstractions transitive dependency",
+      "sha256": "67fa4325000db017dc0c35829b416f024f042d24efb868bcf17a895ee6500a93",
+      "bytes": 63768,
+      "source": "https://api.nuget.org/v3-flatcontainer/microsoft.extensions.dependencyinjection.abstractions/8.0.2/microsoft.extensions.dependencyinjection.abstractions.8.0.2.nupkg",
+      "nupkg_sha256": "51f2df1100245f10da54f0bb7e813f277155117777d4fbbab902214e27372606"
+    },
+    {
+      "file": "zxing.dll",
+      "package": "ZXing.Net",
+      "version": "0.16.11",
+      "target_framework": "net9.0",
+      "license": "Apache-2.0",
+      "purpose": "QR decoding for the pre-print verification gate (KDR-20)",
+      "sha256": "2d9a1a3276fa21f5e20c0e8afa4ea33ca18fd6f984bd5b32ad457279e2709d73",
+      "bytes": 516096,
+      "source": "https://api.nuget.org/v3-flatcontainer/zxing.net/0.16.11/zxing.net.0.16.11.nupkg",
+      "nupkg_sha256": "7d39234d668e558b3d374d18116ed57021d7c0df482801f1e1db4f1db9314ec3"
+    },
+    {
+      "file": "Docnet.Core.dll",
+      "package": "Docnet.Core",
+      "version": "2.6.0",
+      "target_framework": "netstandard2.0",
+      "license": "MIT",
+      "purpose": "PDF rasterization (pdfium) for the verification gate (KDR-20)",
+      "sha256": "a596d9f7a0d71f52593aefe794139c1327e2c7901731e9c2f9d564992d81c8aa",
+      "bytes": 81920,
+      "source": "https://api.nuget.org/v3-flatcontainer/docnet.core/2.6.0/docnet.core.2.6.0.nupkg",
+      "nupkg_sha256": "15c50cdcec7e53a6ffbe48d7d9998a4d27c8bc51216687847c9f784a509236ac"
+    },
+    {
+      "file": "pdfium.dll",
+      "package": "Docnet.Core",
+      "version": "2.6.0",
+      "target_framework": "win-x64 native",
+      "license": "Apache-2.0 (PDFium)",
+      "purpose": "Native rasterizer backing Docnet.Core",
+      "sha256": "bca96944d731dd72877116d3472083c847fe307fc58ca39bce16cbe998c478f1",
+      "bytes": 4968960,
+      "source": "https://api.nuget.org/v3-flatcontainer/docnet.core/2.6.0/docnet.core.2.6.0.nupkg",
+      "nupkg_sha256": "15c50cdcec7e53a6ffbe48d7d9998a4d27c8bc51216687847c9f784a509236ac"
+    }
+  ],
+  "fonts": [
+    {
+      "file": "fonts/DejaVuSans.ttf",
+      "package": "DejaVu Fonts",
+      "version": "2.37",
+      "license": "Bitstream Vera Fonts Licence / Arev Fonts Licence (permissive, embedding allowed)",
+      "purpose": "Action line face (KDR-17)",
+      "sha256": "7da195a74c55bef988d0d48f9508bd5d849425c1770dba5d7bfc6ce9ed848954",
+      "bytes": 757076,
+      "source": "https://github.com/dejavu-fonts/dejavu-fonts/releases/download/version_2_37/dejavu-fonts-ttf-2.37.zip",
+      "archive_sha256": "7576310b219e04159d35ff61dd4a4ec4cdba4f35c00e002a136f00e96a908b0a"
+    },
+    {
+      "file": "fonts/DejaVuSans-Bold.ttf",
+      "package": "DejaVu Fonts",
+      "version": "2.37",
+      "license": "Bitstream Vera Fonts Licence / Arev Fonts Licence (permissive, embedding allowed)",
+      "purpose": "Bold sans face",
+      "sha256": "e6476c1b80502924294eed40894c5b18e06c181444ca953e5334262df9c27724",
+      "bytes": 705684,
+      "source": "https://github.com/dejavu-fonts/dejavu-fonts/releases/download/version_2_37/dejavu-fonts-ttf-2.37.zip",
+      "archive_sha256": "7576310b219e04159d35ff61dd4a4ec4cdba4f35c00e002a136f00e96a908b0a"
+    },
+    {
+      "file": "fonts/DejaVuSansMono-Bold.ttf",
+      "package": "DejaVu Fonts",
+      "version": "2.37",
+      "license": "Bitstream Vera Fonts Licence / Arev Fonts Licence (permissive, embedding allowed)",
+      "purpose": "Display code face (KDR-17)",
+      "sha256": "bce60f1b4421acd9ea51ba6623d7024ecbe6817a953e3654df62a5e6bdf8f769",
+      "bytes": 331992,
+      "source": "https://github.com/dejavu-fonts/dejavu-fonts/releases/download/version_2_37/dejavu-fonts-ttf-2.37.zip",
+      "archive_sha256": "7576310b219e04159d35ff61dd4a4ec4cdba4f35c00e002a136f00e96a908b0a"
+    },
+    {
+      "file": "fonts/DejaVu-LICENSE.txt",
+      "package": "DejaVu Fonts",
+      "version": "2.37",
+      "license": "Bitstream Vera Fonts Licence / Arev Fonts Licence (permissive, embedding allowed)",
+      "purpose": "Bitstream Vera / Arev licence text",
+      "sha256": "7a083b136e64d064794c3419751e5c7dd10d2f64c108fe5ba161eae5e5958a93",
+      "bytes": 8816,
+      "source": "https://github.com/dejavu-fonts/dejavu-fonts/releases/download/version_2_37/dejavu-fonts-ttf-2.37.zip",
+      "archive_sha256": "7576310b219e04159d35ff61dd4a4ec4cdba4f35c00e002a136f00e96a908b0a"
+    }
+  ]
+}
