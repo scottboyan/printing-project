@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "kind": "label_sheet_template",
+  "product_id": "94106",
+  "product_name": "Avery 94106",
+  "spec": "IB0193 KDR-11, KDR-12, KDR-13",
+  "provenance": {
+    "derived_from": "evidence/f006-c06-m04-avery-label-sheets/94106-Prague-QR.pdf",
+    "derived_in_repository": "play-engine-project",
+    "extracted": "2026-09-13",
+    "note": "The twenty label placements were extracted from the Series 1 sheet's explicit transformation matrices, not from a product datasheet. That sheet was physically printed on real Avery 94106 stock and confirmed clean by the operator on 2026-08-11, so this grid is known to register on the operator's printer rather than inferred from a specification.",
+    "drift_note": "The extracted values carried at most 0.1 pt of rounding drift from Avery's exporter (0.0014 in, invisible). The values here are the normalized figures with that drift removed.",
+    "unresolved": "The extraction cannot settle which part of the 117 pt cell is bleed and which is die-cut. All content is therefore confined to the conservative centred safe area below, and a physical overlay proof on plain paper is required before label stock is loaded (KDR-21)."
+  },
+  "page": {
+    "width_pt": 612,
+    "height_pt": 792,
+    "size_name": "US Letter",
+    "origin": "bottom-left",
+    "pages_per_sheet": 1
+  },
+  "grid": {
+    "columns": 4,
+    "rows": 5,
+    "cells_per_sheet": 20,
+    "numbering": "row-major from the top-left: cell 1 is the first column origin paired with the first row origin, cell 20 the last of each",
+    "column_origins_pt": [
+      36,
+      180,
+      324,
+      468
+    ],
+    "row_origins_pt": [
+      639,
+      490.5,
+      342,
+      193.5,
+      45
+    ],
+    "column_pitch_pt": 144.0,
+    "row_pitch_pt": 148.5
+  },
+  "cell": {
+    "offset_x_pt": -4.5,
+    "offset_y_pt": -4.5,
+    "width_pt": 117,
+    "height_pt": 117,
+    "corner_radius_pt": 2.232
+  },
+  "safe_area": {
+    "offset_x_pt": 4,
+    "offset_y_pt": 4,
+    "width_pt": 100,
+    "height_pt": 100,
+    "note": "KDR-13: all content lives inside this centred 100 x 100 pt box within the 117 pt cell."
+  },
+  "expected_margins_pt": {
+    "left": 31.5,
+    "right": 31.5,
+    "top": 40.5,
+    "bottom": 40.5
+  }
+}
