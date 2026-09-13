@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "kind": "artifact_code_denylist",
+  "spec": "IB0192 Generation; IB0193 WP03.T01",
+  "purpose": "Random parts that are rejected and regenerated at mint time. Screened against the six-character random field only, never against the series or check character.",
+  "notes": [
+    "The Crockford alphabet already excludes U, which removes most obscenity risk by construction (IB0192 R1). What remains is screened here.",
+    "Substrings are matched anywhere within the six-character random field, case-insensitively.",
+    "Rules catch random parts that do not LOOK random - a code reading as a test value or placeholder invites a stranger to assume the card is not real.",
+    "Rejection costs one more draw from a space of 1,073,741,824 values per series. The screen is free.",
+    "Rules are declared, not expressed as regex, so that no escaping convention sits between this file and the processor that reads it."
+  ],
+  "substrings": [
+    "A55",
+    "ASS",
+    "5EX",
+    "SEX",
+    "FCK",
+    "FVCK",
+    "SHT",
+    "SH1T",
+    "5H1T",
+    "CNT",
+    "KKK",
+    "NZ1",
+    "NAZ",
+    "PN15",
+    "PN5",
+    "D1CK",
+    "DCK",
+    "TW4T",
+    "TWT",
+    "WNK",
+    "BTCH",
+    "B1TCH",
+    "HTLR",
+    "H1TLER",
+    "RPE",
+    "R4PE",
+    "KYS",
+    "DED"
+  ],
+  "rules": [
+    {
+      "kind": "max_identical_run",
+      "value": 3,
+      "reason": "Four or more identical characters in a row does not read as random."
+    },
+    {
+      "kind": "exact_match",
+      "values": [
+        "012345",
+        "123456",
+        "234567",
+        "ABCDEF",
+        "000000",
+        "ZZZZZZ"
+      ],
+      "reason": "Reads as a placeholder or test value rather than a minted code."
+    }
+  ]
+}
