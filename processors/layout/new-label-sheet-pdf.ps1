@@ -34,9 +34,14 @@ param(
 
     [Parameter()][double]$ImageSize = 72.0,
 
-    # Draws a hairline outline of each cell box and safe area. For the plain-paper
+    # Draws an outline of each cell box and safe area. For the plain-paper
     # calibration proof (KDR-21) only; never for a sheet that goes onto label stock.
     [Parameter()][switch]$DrawGuides,
+
+    # Stroke weight in points for the cell-box guide. Heavy enough to read through
+    # the sheet on a transillumination rig; the safe-area guide is drawn at a third
+    # of this so the die-cut boundary stays the dominant line.
+    [Parameter()][ValidateRange(0.1, 6.0)][double]$GuideWeight = 1.2,
 
     [Parameter()][string]$LibraryPath
 )
@@ -148,8 +153,13 @@ try {
         $black = [PdfSharp.Drawing.XBrushes]::Black
 
         if ($DrawGuides) {
-            $guidePen = [PdfSharp.Drawing.XPen]::new([PdfSharp.Drawing.XColors]::LightGray, 0.25)
-            $safePen  = [PdfSharp.Drawing.XPen]::new([PdfSharp.Drawing.XColors]::LightGray, 0.25)
+            # The cell box is the die-cut boundary and is what the operator lines up
+            # on a transillumination rig, so it is drawn solid black and heavy enough
+            # to read through the sheet when backlit. A hairline grey does not show
+            # through. The safe area stays light and dotted: it is a secondary
+            # reference and must not compete with the boundary being judged.
+            $guidePen = [PdfSharp.Drawing.XPen]::new([PdfSharp.Drawing.XColors]::Black, $GuideWeight)
+            $safePen  = [PdfSharp.Drawing.XPen]::new([PdfSharp.Drawing.XColors]::Gray, ($GuideWeight / 3.0))
             $safePen.DashStyle = [PdfSharp.Drawing.XDashStyle]::Dot
             foreach ($cell in $Template.Cells) {
                 $gfx.DrawRoundedRectangle($guidePen, $cell.Box.Left, ($pageHeight - $cell.Box.Bottom - $cell.Box.Height),

@@ -22,7 +22,11 @@ param(
 
     # Draws cell and safe-area guides. For the WP07.T03 plain-paper calibration
     # proof only - never for a sheet that goes onto label stock.
-    [Parameter()][switch]$Guides
+    [Parameter()][switch]$Guides,
+
+    # Stroke weight in points for the die-cut guide on a proof sheet. Raise it if the
+    # line does not read through the sheet on a transillumination rig.
+    [Parameter()][ValidateRange(0.1, 6.0)][double]$GuideWeight = 1.2
 )
 
 Set-StrictMode -Version Latest
@@ -47,7 +51,7 @@ Write-Host "Build label sheets for series $Series"
 Write-Host "  registry : $RegistryPath"
 Write-Host "  output   : $OutputDirectory"
 Write-Host "  product  : $ProductId"
-if ($Guides) { Write-Host "  guides   : ON - calibration proof only, not for label stock" -ForegroundColor Yellow }
+if ($Guides) { Write-Host "  guides   : ON at $GuideWeight pt - calibration proof only, not for label stock" -ForegroundColor Yellow }
 Write-Host ''
 
 # --- 1. validate the registry before building anything from it --------------
@@ -70,6 +74,11 @@ $params = @{ ProductId = $ProductId }
 $template = & $getTemplate @params
 $perSheet = $template.CellsPerSheet
 Write-Host "  [2/5] template $($template.ProductName): $perSheet cells, margins L$($template.Margins.Left) R$($template.Margins.Right) T$($template.Margins.Top) B$($template.Margins.Bottom) pt"
+$offset = $template.CalibrationOffset
+if ($offset.X -ne 0 -or $offset.Y -ne 0) {
+    Write-Host ("        calibration offset applied: x {0:+0.##;-0.##;0} pt, y {1:+0.##;-0.##;0} pt ({2:0.###} in, {3:0.###} in)" -f `
+        $offset.X, $offset.Y, ($offset.X / 72), ($offset.Y / 72)) -ForegroundColor Cyan
+}
 
 # [int] is deliberate: [math]::Ceiling returns a double, which serializes into
 # the manifest as 2.0 rather than 2.
@@ -119,7 +128,10 @@ for ($sheet = 1; $sheet -le $sheetCount; $sheet++) {
         OutputPath = $sheetPath
         Title      = "Series $Series sheet $sheet of $sheetCount"
     }
-    if ($Guides) { $params['DrawGuides'] = $true }
+    if ($Guides) {
+        $params['DrawGuides']  = $true
+        $params['GuideWeight'] = $GuideWeight
+    }
 
     $composed = & $newSheet @params
     $sheetPaths.Add($composed.Path)

@@ -31,15 +31,29 @@ if (-not (Test-Path -LiteralPath $path)) {
 
 $template = Get-Content -LiteralPath $path -Raw -Encoding UTF8 | ConvertFrom-Json
 
+# Printer calibration offset, applied to every origin as the cells are materialized.
+# It is kept separate from the derived origins on purpose: the grid in the template
+# is the geometry extracted from the physically verified Series 1 sheet, and this is
+# a per-printer correction sitting on top of it. Absorbing one into the other would
+# destroy the provenance of both.
+$offsetX = 0.0
+$offsetY = 0.0
+if ($template.PSObject.Properties.Name -contains 'calibration_offset_pt') {
+    $offsetX = [double]$template.calibration_offset_pt.x
+    $offsetY = [double]$template.calibration_offset_pt.y
+}
+
 # Materialize the cells as the Cartesian product of the row and column origins, in
 # row-major order from the top-left. Coordinates are PDF-native: origin bottom-left,
 # y increasing upward. Row origins are listed top row first, which is why the row
 # loop is the outer one.
 $cells = [System.Collections.Generic.List[object]]::new()
 $number = 0
-foreach ($y in $template.grid.row_origins_pt) {
-    foreach ($x in $template.grid.column_origins_pt) {
+foreach ($rowOrigin in $template.grid.row_origins_pt) {
+    foreach ($columnOrigin in $template.grid.column_origins_pt) {
         $number++
+        $x = [double]$columnOrigin + $offsetX
+        $y = [double]$rowOrigin + $offsetY
         $cells.Add([pscustomobject][ordered]@{
             Number   = $number
             OriginX  = [double]$x
@@ -65,6 +79,17 @@ if ($cells.Count -ne $expected) {
     throw "Template $path declares $expected cells per sheet but its origins produce $($cells.Count)."
 }
 
+# A calibration offset large enough to push a cell off the media is a
+# configuration error, and one that would only be discovered after printing.
+foreach ($cell in $cells) {
+    $right = $cell.Box.Left + $cell.Box.Width
+    $top   = $cell.Box.Bottom + $cell.Box.Height
+    if ($cell.Box.Left -lt 0 -or $cell.Box.Bottom -lt 0 -or
+        $right -gt [double]$template.page.width_pt -or $top -gt [double]$template.page.height_pt) {
+        throw "Cell $($cell.Number) falls outside the $($template.page.width_pt) x $($template.page.height_pt) pt page after the calibration offset ($offsetX, $offsetY): box is ($($cell.Box.Left), $($cell.Box.Bottom)) to ($right, $top)."
+    }
+}
+
 # Computed margins, so a caller can assert the sheet is the one the brief specifies
 # rather than trusting the file.
 $leftEdges   = @($cells | ForEach-Object { $_.Box.Left })
@@ -84,6 +109,7 @@ return [pscustomobject][ordered]@{
     Rows           = [int]$template.grid.rows
     CellsPerSheet  = [int]$template.grid.cells_per_sheet
     CornerRadius   = [double]$template.cell.corner_radius_pt
+    CalibrationOffset = [pscustomobject][ordered]@{ X = $offsetX; Y = $offsetY }
     Cells          = $cells.ToArray()
     Margins        = [pscustomobject][ordered]@{
         Left   = ($leftEdges   | Measure-Object -Minimum).Minimum

@@ -54,10 +54,20 @@
     "height_pt": 100,
     "note": "KDR-13: all content lives inside this centred 100 x 100 pt box within the 117 pt cell."
   },
-  "expected_margins_pt": {
+  "calibration_offset_pt": {
+    "x": -9.0,
+    "y": 0.0,
+    "unit_note": "Points. -9 pt is exactly 1/8 inch to the left; 72 pt = 1 inch.",
+    "directed_by": "operator",
+    "directed_on": "2026-09-13",
+    "reason": "Applied after the WP07.T03 physical proof on this printer. The operator confirmed the derived grid registered well on the first attempt and directed a 1/8 inch left shift as fine-tuning.",
+    "note": "This is a PRINTER calibration, not a correction to the derived grid. The column and row origins above remain exactly as extracted from the Series 1 evidence sheet and must not be edited to absorb this offset: keeping the two separate is what lets a future run on a different printer reset the offset to zero without losing the provenance of the grid itself. IB0193 WP07.T03 explicitly anticipates this path - 'report the observed offset; the geometry is adjusted and the proof repeated'."
+  },
+  "derived_margins_pt": {
     "left": 31.5,
     "right": 31.5,
     "top": 40.5,
-    "bottom": 40.5
+    "bottom": 40.5,
+    "note": "Margins of the derived grid with a zero calibration offset, as stated in IB0193. The effective margins after the offset above are computed by the layout processor and reported by it."
   }
 }
