@@ -346,3 +346,158 @@ Describe 'Calibration adjustment processor' {
         $history[-1].after  | Should -BeExactly 'test round'
     }
 }
+
+Describe 'Die-cut guide inset' {
+    It 'is the cell box itself when nothing has been measured' {
+        # The honest default: before anyone has measured the stock, the best available
+        # statement about the die-cut is the cell box. IB0193 R3 leaves it open.
+        $directory = New-TemplateFixture -ProductId '94106' -Calibration @{
+            unit = 'mm'; global_offset_mm = @{ x = 0.0; y = 0.0 }
+        }
+        $params = @{ ProductId = '94106'; TemplateDirectory = $directory }
+        $template = & $script:GetTemplate @params
+
+        $cell = $template.Cells[0]
+        $cell.DieCut.Width  | Should -Be $cell.Box.Width
+        $cell.DieCut.Height | Should -Be $cell.Box.Height
+        $cell.DieCut.Left   | Should -Be $cell.Box.Left
+        $cell.DieCut.Bottom | Should -Be $cell.Box.Bottom
+    }
+
+    It 'pulls the die-cut in by the measured inset on all four sides' {
+        $directory = New-TemplateFixture -ProductId '94106' -Calibration @{
+            unit = 'mm'; global_offset_mm = @{ x = 0.0; y = 0.0 }; guide_inset_mm = 1.7
+        }
+        $params = @{ ProductId = '94106'; TemplateDirectory = $directory }
+        $template = & $script:GetTemplate @params
+
+        $inset = 1.7 * $script:MmToPt
+        foreach ($cell in $template.Cells) {
+            [math]::Abs($cell.DieCut.Width  - (117 - 2 * $inset)) | Should -BeLessThan 0.0001
+            [math]::Abs($cell.DieCut.Height - (117 - 2 * $inset)) | Should -BeLessThan 0.0001
+            [math]::Abs($cell.DieCut.Left   - ($cell.Box.Left   + $inset)) | Should -BeLessThan 0.0001
+            [math]::Abs($cell.DieCut.Bottom - ($cell.Box.Bottom + $inset)) | Should -BeLessThan 0.0001
+        }
+    }
+
+    It 'keeps the die-cut concentric with the cell box' {
+        $directory = New-TemplateFixture -ProductId '94106' -Calibration @{
+            unit = 'mm'; global_offset_mm = @{ x = -2.175; y = 0.0 }
+            row_offsets_mm = @(0.5, 0.5, 1.0, 1.0, 1.25); guide_inset_mm = 1.7
+        }
+        $params = @{ ProductId = '94106'; TemplateDirectory = $directory }
+        $template = & $script:GetTemplate @params
+
+        foreach ($cell in $template.Cells) {
+            $boxCentreX = $cell.Box.Left + ($cell.Box.Width / 2)
+            $cutCentreX = $cell.DieCut.Left + ($cell.DieCut.Width / 2)
+            $boxCentreY = $cell.Box.Bottom + ($cell.Box.Height / 2)
+            $cutCentreY = $cell.DieCut.Bottom + ($cell.DieCut.Height / 2)
+            [math]::Abs($cutCentreX - $boxCentreX) | Should -BeLessThan 0.0001
+            [math]::Abs($cutCentreY - $boxCentreY) | Should -BeLessThan 0.0001
+        }
+    }
+
+    It 'refuses an inset that would put the safe area outside the die-cut' {
+        # 117 pt cell, 100 pt safe area: more than 8.5 pt of inset clips content.
+        $directory = New-TemplateFixture -ProductId '94106' -Calibration @{
+            unit = 'mm'; global_offset_mm = @{ x = 0.0; y = 0.0 }; guide_inset_mm = 4.0
+        }
+        $params = @{ ProductId = '94106'; TemplateDirectory = $directory }
+        { & $script:GetTemplate @params } | Should -Throw '*outside the die-cut*'
+    }
+}
+
+Describe 'Calibration undo' {
+    BeforeAll {
+        $script:SetCal = Join-Path $script:Root 'processors/layout/set-label-template-calibration.ps1'
+
+        function New-CalTemplate {
+            $directory = Join-Path $TestDrive ([System.Guid]::NewGuid().ToString('N'))
+            New-Item -ItemType Directory -Path $directory -Force | Out-Null
+            $path = Join-Path $directory 'avery-94106.json'
+            Copy-Item (Join-Path $script:TemplateDir 'avery-94106.json') $path
+            return $path
+        }
+    }
+
+    It 'restores the exact state from before the last round' {
+        $path = New-CalTemplate
+        $before = (Get-Content $path -Raw | ConvertFrom-Json).calibration
+
+        $params = @{ TemplatePath = $path; RowsUpMm = @{ 3 = 4.0 }; GlobalRightMm = 2.0; GuidesInwardMm = 0.4 }
+        $null = & $script:SetCal @params
+
+        $params = @{ TemplatePath = $path; Undo = $true }
+        $null = & $script:SetCal @params
+
+        $after = (Get-Content $path -Raw | ConvertFrom-Json).calibration
+        $after.global_offset_mm.x | Should -Be $before.global_offset_mm.x
+        $after.global_offset_mm.y | Should -Be $before.global_offset_mm.y
+        $after.guide_inset_mm     | Should -Be $before.guide_inset_mm
+        ($after.row_offsets_mm -join ',')    | Should -BeExactly ($before.row_offsets_mm -join ',')
+        ($after.column_offsets_mm -join ',') | Should -BeExactly ($before.column_offsets_mm -join ',')
+    }
+
+    It 'moves the reverted round to the undone log rather than discarding it' {
+        $path = New-CalTemplate
+        $params = @{ TemplatePath = $path; RowsUpMm = @{ 2 = 3.0 }; Note = 'bad round' }
+        $null = & $script:SetCal @params
+
+        $params = @{ TemplatePath = $path; Undo = $true }
+        $null = & $script:SetCal @params
+
+        $calibration = (Get-Content $path -Raw | ConvertFrom-Json).calibration
+        $undone = @($calibration.undone)
+        $undone.Count | Should -BeGreaterThan 0
+        $undone[-1].change | Should -Match 'row 2'
+    }
+
+    It 'refuses to undo when there is no history' {
+        $path = New-CalTemplate
+
+        # Reset still records a round, so the history is stripped to reach the
+        # genuinely empty case.
+        $document = Get-Content $path -Raw | ConvertFrom-Json
+        $document.calibration.history = @()
+        [System.IO.File]::WriteAllText($path, ($document | ConvertTo-Json -Depth 12), [System.Text.UTF8Encoding]::new($false))
+
+        $params = @{ TemplatePath = $path; Undo = $true }
+        { & $script:SetCal @params } | Should -Throw '*no calibration round to undo*'
+    }
+}
+
+Describe 'Calibration orchestrator read-only modes' {
+    BeforeAll {
+        $script:Adjust = Join-Path $script:Root 'orchestrators/adjust-label-template-calibration.ps1'
+
+        function New-CalDirectory {
+            $directory = Join-Path $TestDrive ([System.Guid]::NewGuid().ToString('N'))
+            New-Item -ItemType Directory -Path $directory -Force | Out-Null
+            Copy-Item (Join-Path $script:TemplateDir 'avery-94106.json') (Join-Path $directory 'avery-94106.json')
+            return $directory
+        }
+    }
+
+    It 'leaves the template byte-identical under -Show' {
+        $directory = New-CalDirectory
+        $path = Join-Path $directory 'avery-94106.json'
+        $before = Get-Content $path -Raw
+
+        $params = @{ ProductId = '94106'; TemplateDirectory = $directory; Show = $true }
+        & $script:Adjust @params | Out-Null
+
+        (Get-Content $path -Raw) | Should -BeExactly $before
+    }
+
+    It 'leaves the template byte-identical under -WhatIf' {
+        $directory = New-CalDirectory
+        $path = Join-Path $directory 'avery-94106.json'
+        $before = Get-Content $path -Raw
+
+        $params = @{ ProductId = '94106'; TemplateDirectory = $directory; RowsUp = @{ 1 = 1.0 }; GlobalRight = 3.0; WhatIf = $true }
+        & $script:Adjust @params | Out-Null
+
+        (Get-Content $path -Raw) | Should -BeExactly $before
+    }
+}

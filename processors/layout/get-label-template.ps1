@@ -45,6 +45,10 @@ $offsetX       = 0.0
 $offsetY       = 0.0
 $rowOffsets    = @()
 $columnOffsets = @()
+# How far inside the cell box the actual die-cut sits, per side. IB0193 R3 records
+# that the extraction could not settle which part of the 117 pt cell is bleed and
+# which is die-cut; this is where an operator's physical measurement answers it.
+$guideInset    = 0.0
 
 if ($template.PSObject.Properties.Name -contains 'calibration') {
     $calibration = $template.calibration
@@ -65,6 +69,10 @@ if ($template.PSObject.Properties.Name -contains 'calibration') {
         if ($rowOffsets.Count -ne $rowCount) {
             throw "Template $path declares $($rowOffsets.Count) row offsets but the grid has $rowCount rows. row_offsets_mm must be parallel to grid.row_origins_pt, top row first."
         }
+    }
+
+    if ($calibration.PSObject.Properties.Name -contains 'guide_inset_mm') {
+        $guideInset = [double]$calibration.guide_inset_mm * $pointsPerMillimetre
     }
 
     if ($calibration.PSObject.Properties.Name -contains 'column_offsets_mm') {
@@ -109,6 +117,16 @@ foreach ($rowOrigin in $template.grid.row_origins_pt) {
                 Width  = [double]$template.cell.width_pt
                 Height = [double]$template.cell.height_pt
             }
+            # The die-cut: the cell box drawn in from every side by the measured
+            # inset. This is what a proof sheet's guides represent, and what the
+            # operator lines the stock up against. With a zero inset it is the cell
+            # box itself, which is the honest default before anyone has measured.
+            DieCut   = [pscustomobject][ordered]@{
+                Left   = [double]$x + $template.cell.offset_x_pt + $guideInset
+                Bottom = [double]$y + $template.cell.offset_y_pt + $guideInset
+                Width  = [double]$template.cell.width_pt  - (2 * $guideInset)
+                Height = [double]$template.cell.height_pt - (2 * $guideInset)
+            }
             SafeArea = [pscustomobject][ordered]@{
                 Left   = [double]$x + $template.safe_area.offset_x_pt
                 Bottom = [double]$y + $template.safe_area.offset_y_pt
@@ -122,6 +140,18 @@ foreach ($rowOrigin in $template.grid.row_origins_pt) {
 $expected = $template.grid.cells_per_sheet
 if ($cells.Count -ne $expected) {
     throw "Template $path declares $expected cells per sheet but its origins produce $($cells.Count)."
+}
+
+# The safe area must stay inside the die-cut. If an inset were measured so large
+# that content fell outside the cut, every label would be clipped - and it would
+# only be discovered after the stock was through the printer.
+foreach ($cell in $cells) {
+    if ($cell.SafeArea.Left -lt $cell.DieCut.Left -or
+        $cell.SafeArea.Bottom -lt $cell.DieCut.Bottom -or
+        ($cell.SafeArea.Left + $cell.SafeArea.Width) -gt ($cell.DieCut.Left + $cell.DieCut.Width) -or
+        ($cell.SafeArea.Bottom + $cell.SafeArea.Height) -gt ($cell.DieCut.Bottom + $cell.DieCut.Height)) {
+        throw "Cell $($cell.Number): the $($template.safe_area.width_pt) x $($template.safe_area.height_pt) pt safe area falls outside the die-cut after a guide inset of $([math]::Round($guideInset, 4)) pt. Content would be clipped by the cut."
+    }
 }
 
 # A calibration offset large enough to push a cell off the media is a
@@ -159,6 +189,7 @@ return [pscustomobject][ordered]@{
         Y             = $offsetY
         RowOffsets    = $rowOffsets
         ColumnOffsets = $columnOffsets
+        GuideInset    = $guideInset
     }
     Cells          = $cells.ToArray()
     Margins        = [pscustomobject][ordered]@{

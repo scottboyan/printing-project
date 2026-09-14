@@ -162,8 +162,12 @@ try {
             $safePen  = [PdfSharp.Drawing.XPen]::new([PdfSharp.Drawing.XColors]::Gray, ($GuideWeight / 3.0))
             $safePen.DashStyle = [PdfSharp.Drawing.XDashStyle]::Dot
             foreach ($cell in $Template.Cells) {
-                $gfx.DrawRoundedRectangle($guidePen, $cell.Box.Left, ($pageHeight - $cell.Box.Bottom - $cell.Box.Height),
-                    $cell.Box.Width, $cell.Box.Height, ($Template.CornerRadius * 2), ($Template.CornerRadius * 2))
+                # Guides are drawn on the DIE-CUT, not the bleed box. The die-cut is
+                # what the operator lines the stock up against; drawing the bleed box
+                # would have them calibrating to an edge that does not exist on the
+                # physical sheet. With no measured inset the two are identical.
+                $gfx.DrawRoundedRectangle($guidePen, $cell.DieCut.Left, ($pageHeight - $cell.DieCut.Bottom - $cell.DieCut.Height),
+                    $cell.DieCut.Width, $cell.DieCut.Height, ($Template.CornerRadius * 2), ($Template.CornerRadius * 2))
                 $gfx.DrawRectangle($safePen, $cell.SafeArea.Left, ($pageHeight - $cell.SafeArea.Bottom - $cell.SafeArea.Height),
                     $cell.SafeArea.Width, $cell.SafeArea.Height)
             }
