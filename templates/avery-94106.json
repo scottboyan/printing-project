@@ -66,7 +66,7 @@
     "why_mm": "The derived grid above is points, because that is what was extracted from the PDF and it must not be touched. This block is millimetres because it records what the OPERATOR measured on a physical proof, and round-tripping their measurement through a hand-converted point value is where a transcription error would enter. The layout processor does the one conversion, at full double precision.",
     "sign_convention": "x positive moves the layout RIGHT on the page. y and every row offset positive move it UP the page. guide_inset_mm positive pulls the die-cut guide INWARD from the cell box on every side. row_offsets_mm is parallel to grid.row_origins_pt and is listed TOP ROW FIRST; column_offsets_mm is parallel to grid.column_origins_pt and is listed LEFT COLUMN FIRST.",
     "global_offset_mm": {
-      "x": -2.175,
+      "x": -1.775,
       "y": 0.0
     },
     "row_offsets_mm": [
@@ -129,6 +129,31 @@
           "guide_inset_mm": 1.7
         },
         "after": "Fourth proof: grid 0.5 mm left; die-cut guides measured 1.7 mm outside the actual cut on every side."
+      },
+      {
+        "on": "2026-09-14",
+        "by": "operator",
+        "mode": "relative",
+        "change": "global x +0.4 mm",
+        "state_after": {
+          "global_x": -1.775,
+          "global_y": 0.0,
+          "rows": [
+            0.5,
+            0.5,
+            1.0,
+            1.0,
+            1.25
+          ],
+          "columns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guide_inset_mm": 1.7
+        },
+        "after": "Fifth proof: whole grid 0.4 mm right. Operator called registration good at this point."
       }
     ],
     "undone": []
