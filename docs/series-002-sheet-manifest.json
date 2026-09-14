@@ -1,0 +1,374 @@
+{
+  "kind": "label_sheet_manifest",
+  "series": "002",
+  "product_id": "94106",
+  "built_at": "2026-09-14T00:51:52Z",
+  "sheet_count": 2,
+  "labels": 40,
+  "sheets": [
+    "D:\\dev\\printing-project\\out\\series-002-sheet-1.pdf",
+    "D:\\dev\\printing-project\\out\\series-002-sheet-2.pdf"
+  ],
+  "placements": [
+    {
+      "Sheet": 1,
+      "Cell": 1,
+      "Code": "002HSR8TFR",
+      "Display": "002-HSR8TF-R",
+      "Url": "https://scottboyan.com/artifact/002HSR8TFR",
+      "QrVersion": 3,
+      "QrModules": 29
+    },
+    {
+      "Sheet": 1,
+      "Cell": 2,
+      "Code": "002FK40ZY6",
+      "Display": "002-FK40ZY-6",
+      "Url": "https://scottboyan.com/artifact/002FK40ZY6",
+      "QrVersion": 3,
+      "QrModules": 29
+    },
+    {
+      "Sheet": 1,
+      "Cell": 3,
+      "Code": "00236ZM8ZY",
+      "Display": "002-36ZM8Z-Y",
+      "Url": "https://scottboyan.com/artifact/00236ZM8ZY",
+      "QrVersion": 3,
+      "QrModules": 29
+    },
+    {
+      "Sheet": 1,
+      "Cell": 4,
+      "Code": "0022RSNHTZ",
+      "Display": "002-2RSNHT-Z",
+      "Url": "https://scottboyan.com/artifact/0022RSNHTZ",
+      "QrVersion": 3,
+      "QrModules": 29
+    },
+    {
+      "Sheet": 1,
+      "Cell": 5,
+      "Code": "002KMKPYTD",
+      "Display": "002-KMKPYT-D",
+      "Url": "https://scottboyan.com/artifact/002KMKPYTD",
+      "QrVersion": 3,
+      "QrModules": 29
+    },
+    {
+      "Sheet": 1,
+      "Cell": 6,
+      "Code": "002EFG2Q9K",
+      "Display": "002-EFG2Q9-K",
+      "Url": "https://scottboyan.com/artifact/002EFG2Q9K",
+      "QrVersion": 3,
+      "QrModules": 29
+    },
+    {
+      "Sheet": 1,
+      "Cell": 7,
+      "Code": "002XRH64ZE",
+      "Display": "002-XRH64Z-E",
+      "Url": "https://scottboyan.com/artifact/002XRH64ZE",
+      "QrVersion": 3,
+      "QrModules": 29
+    },
+    {
+      "Sheet": 1,
+      "Cell": 8,
+      "Code": "002SQFNA9Y",
+      "Display": "002-SQFNA9-Y",
+      "Url": "https://scottboyan.com/artifact/002SQFNA9Y",
+      "QrVersion": 3,
+      "QrModules": 29
+    },
+    {
+      "Sheet": 1,
+      "Cell": 9,
+      "Code": "002Q4QQQF2",
+      "Display": "002-Q4QQQF-2",
+      "Url": "https://scottboyan.com/artifact/002Q4QQQF2",
+      "QrVersion": 3,
+      "QrModules": 29
+    },
+    {
+      "Sheet": 1,
+      "Cell": 10,
+      "Code": "002TPBF7G4",
+      "Display": "002-TPBF7G-4",
+      "Url": "https://scottboyan.com/artifact/002TPBF7G4",
+      "QrVersion": 3,
+      "QrModules": 29
+    },
+    {
+      "Sheet": 1,
+      "Cell": 11,
+      "Code": "002ZB05BWS",
+      "Display": "002-ZB05BW-S",
+      "Url": "https://scottboyan.com/artifact/002ZB05BWS",
+      "QrVersion": 3,
+      "QrModules": 29
+    },
+    {
+      "Sheet": 1,
+      "Cell": 12,
+      "Code": "002E3NSAFR",
+      "Display": "002-E3NSAF-R",
+      "Url": "https://scottboyan.com/artifact/002E3NSAFR",
+      "QrVersion": 3,
+      "QrModules": 29
+    },
+    {
+      "Sheet": 1,
+      "Cell": 13,
+      "Code": "002K781RW0",
+      "Display": "002-K781RW-0",
+      "Url": "https://scottboyan.com/artifact/002K781RW0",
+      "QrVersion": 3,
+      "QrModules": 29
+    },
+    {
+      "Sheet": 1,
+      "Cell": 14,
+      "Code": "002GK912B2",
+      "Display": "002-GK912B-2",
+      "Url": "https://scottboyan.com/artifact/002GK912B2",
+      "QrVersion": 3,
+      "QrModules": 29
+    },
+    {
+      "Sheet": 1,
+      "Cell": 15,
+      "Code": "002A0TQG2N",
+      "Display": "002-A0TQG2-N",
+      "Url": "https://scottboyan.com/artifact/002A0TQG2N",
+      "QrVersion": 3,
+      "QrModules": 29
+    },
+    {
+      "Sheet": 1,
+      "Cell": 16,
+      "Code": "002DYY33YE",
+      "Display": "002-DYY33Y-E",
+      "Url": "https://scottboyan.com/artifact/002DYY33YE",
+      "QrVersion": 3,
+      "QrModules": 29
+    },
+    {
+      "Sheet": 1,
+      "Cell": 17,
+      "Code": "002N66KW3C",
+      "Display": "002-N66KW3-C",
+      "Url": "https://scottboyan.com/artifact/002N66KW3C",
+      "QrVersion": 3,
+      "QrModules": 29
+    },
+    {
+      "Sheet": 1,
+      "Cell": 18,
+      "Code": "002WBSJ10B",
+      "Display": "002-WBSJ10-B",
+      "Url": "https://scottboyan.com/artifact/002WBSJ10B",
+      "QrVersion": 3,
+      "QrModules": 29
+    },
+    {
+      "Sheet": 1,
+      "Cell": 19,
+      "Code": "0027X0ZVX5",
+      "Display": "002-7X0ZVX-5",
+      "Url": "https://scottboyan.com/artifact/0027X0ZVX5",
+      "QrVersion": 3,
+      "QrModules": 29
+    },
+    {
+      "Sheet": 1,
+      "Cell": 20,
+      "Code": "002C598ZJ9",
+      "Display": "002-C598ZJ-9",
+      "Url": "https://scottboyan.com/artifact/002C598ZJ9",
+      "QrVersion": 3,
+      "QrModules": 29
+    },
+    {
+      "Sheet": 2,
+      "Cell": 1,
+      "Code": "0025PXQ8VZ",
+      "Display": "002-5PXQ8V-Z",
+      "Url": "https://scottboyan.com/artifact/0025PXQ8VZ",
+      "QrVersion": 3,
+      "QrModules": 29
+    },
+    {
+      "Sheet": 2,
+      "Cell": 2,
+      "Code": "002YE1QBH4",
+      "Display": "002-YE1QBH-4",
+      "Url": "https://scottboyan.com/artifact/002YE1QBH4",
+      "QrVersion": 3,
+      "QrModules": 29
+    },
+    {
+      "Sheet": 2,
+      "Cell": 3,
+      "Code": "002KEG96QP",
+      "Display": "002-KEG96Q-P",
+      "Url": "https://scottboyan.com/artifact/002KEG96QP",
+      "QrVersion": 3,
+      "QrModules": 29
+    },
+    {
+      "Sheet": 2,
+      "Cell": 4,
+      "Code": "002HP66HJP",
+      "Display": "002-HP66HJ-P",
+      "Url": "https://scottboyan.com/artifact/002HP66HJP",
+      "QrVersion": 3,
+      "QrModules": 29
+    },
+    {
+      "Sheet": 2,
+      "Cell": 5,
+      "Code": "002BQWD1YE",
+      "Display": "002-BQWD1Y-E",
+      "Url": "https://scottboyan.com/artifact/002BQWD1YE",
+      "QrVersion": 3,
+      "QrModules": 29
+    },
+    {
+      "Sheet": 2,
+      "Cell": 6,
+      "Code": "002DSW5ENX",
+      "Display": "002-DSW5EN-X",
+      "Url": "https://scottboyan.com/artifact/002DSW5ENX",
+      "QrVersion": 3,
+      "QrModules": 29
+    },
+    {
+      "Sheet": 2,
+      "Cell": 7,
+      "Code": "002BC776T9",
+      "Display": "002-BC776T-9",
+      "Url": "https://scottboyan.com/artifact/002BC776T9",
+      "QrVersion": 3,
+      "QrModules": 29
+    },
+    {
+      "Sheet": 2,
+      "Cell": 8,
+      "Code": "00297Y3MDK",
+      "Display": "002-97Y3MD-K",
+      "Url": "https://scottboyan.com/artifact/00297Y3MDK",
+      "QrVersion": 3,
+      "QrModules": 29
+    },
+    {
+      "Sheet": 2,
+      "Cell": 9,
+      "Code": "002QZY6Y8E",
+      "Display": "002-QZY6Y8-E",
+      "Url": "https://scottboyan.com/artifact/002QZY6Y8E",
+      "QrVersion": 3,
+      "QrModules": 29
+    },
+    {
+      "Sheet": 2,
+      "Cell": 10,
+      "Code": "002ZF0ARZM",
+      "Display": "002-ZF0ARZ-M",
+      "Url": "https://scottboyan.com/artifact/002ZF0ARZM",
+      "QrVersion": 3,
+      "QrModules": 29
+    },
+    {
+      "Sheet": 2,
+      "Cell": 11,
+      "Code": "0020PSVH1C",
+      "Display": "002-0PSVH1-C",
+      "Url": "https://scottboyan.com/artifact/0020PSVH1C",
+      "QrVersion": 3,
+      "QrModules": 29
+    },
+    {
+      "Sheet": 2,
+      "Cell": 12,
+      "Code": "002ZJ567NN",
+      "Display": "002-ZJ567N-N",
+      "Url": "https://scottboyan.com/artifact/002ZJ567NN",
+      "QrVersion": 3,
+      "QrModules": 29
+    },
+    {
+      "Sheet": 2,
+      "Cell": 13,
+      "Code": "002WMQK493",
+      "Display": "002-WMQK49-3",
+      "Url": "https://scottboyan.com/artifact/002WMQK493",
+      "QrVersion": 3,
+      "QrModules": 29
+    },
+    {
+      "Sheet": 2,
+      "Cell": 14,
+      "Code": "002W4B0HZX",
+      "Display": "002-W4B0HZ-X",
+      "Url": "https://scottboyan.com/artifact/002W4B0HZX",
+      "QrVersion": 3,
+      "QrModules": 29
+    },
+    {
+      "Sheet": 2,
+      "Cell": 15,
+      "Code": "002MS39Y2Y",
+      "Display": "002-MS39Y2-Y",
+      "Url": "https://scottboyan.com/artifact/002MS39Y2Y",
+      "QrVersion": 3,
+      "QrModules": 29
+    },
+    {
+      "Sheet": 2,
+      "Cell": 16,
+      "Code": "0021ZH7TWA",
+      "Display": "002-1ZH7TW-A",
+      "Url": "https://scottboyan.com/artifact/0021ZH7TWA",
+      "QrVersion": 3,
+      "QrModules": 29
+    },
+    {
+      "Sheet": 2,
+      "Cell": 17,
+      "Code": "002XP17VSN",
+      "Display": "002-XP17VS-N",
+      "Url": "https://scottboyan.com/artifact/002XP17VSN",
+      "QrVersion": 3,
+      "QrModules": 29
+    },
+    {
+      "Sheet": 2,
+      "Cell": 18,
+      "Code": "0023KEKHZD",
+      "Display": "002-3KEKHZ-D",
+      "Url": "https://scottboyan.com/artifact/0023KEKHZD",
+      "QrVersion": 3,
+      "QrModules": 29
+    },
+    {
+      "Sheet": 2,
+      "Cell": 19,
+      "Code": "00201E6AT1",
+      "Display": "002-01E6AT-1",
+      "Url": "https://scottboyan.com/artifact/00201E6AT1",
+      "QrVersion": 3,
+      "QrModules": 29
+    },
+    {
+      "Sheet": 2,
+      "Cell": 20,
+      "Code": "002WNS3HQP",
+      "Display": "002-WNS3HQ-P",
+      "Url": "https://scottboyan.com/artifact/002WNS3HQP",
+      "QrVersion": 3,
+      "QrModules": 29
+    }
+  ]
+}
