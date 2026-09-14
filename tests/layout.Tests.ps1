@@ -209,3 +209,140 @@ Describe 'Print and proof sheets stay in exact parity' {
         }
     }
 }
+
+Describe 'Per-column calibration' {
+    It 'applies a per-column offset to that column only, left column first' {
+        $directory = New-TemplateFixture -ProductId '94106' -Calibration @{
+            unit = 'mm'; global_offset_mm = @{ x = 0.0; y = 0.0 }
+            row_offsets_mm = @(0, 0, 0, 0, 0); column_offsets_mm = @(0, -0.4, 0, 0.6)
+        }
+        $params = @{ ProductId = '94106'; TemplateDirectory = $directory }
+        $template = & $script:GetTemplate @params
+
+        # Columns are cells n, n+1, n+2, n+3 within each row.
+        $expected = @{ 1 = 36.0; 2 = 180.0 - (0.4 * $script:MmToPt); 3 = 324.0; 4 = 468.0 + (0.6 * $script:MmToPt) }
+        foreach ($column in 1, 2, 3, 4) {
+            foreach ($row in 0, 4) {          # first row and second row
+                $cell = $template.Cells | Where-Object { $_.Number -eq ($row + $column) }
+                [math]::Abs($cell.OriginX - $expected[$column]) | Should -BeLessThan 0.0001 -Because "cell $($row + $column) is in column $column"
+            }
+        }
+    }
+
+    It 'refuses a column-offset array that does not match the number of columns' {
+        $directory = New-TemplateFixture -ProductId '94106' -Calibration @{
+            unit = 'mm'; global_offset_mm = @{ x = 0.0; y = 0.0 }; column_offsets_mm = @(0, 0)
+        }
+        $params = @{ ProductId = '94106'; TemplateDirectory = $directory }
+        { & $script:GetTemplate @params } | Should -Throw '*must be parallel*'
+    }
+
+    It 'keeps row and column offsets independent' {
+        $directory = New-TemplateFixture -ProductId '94106' -Calibration @{
+            unit = 'mm'; global_offset_mm = @{ x = 0.0; y = 0.0 }
+            row_offsets_mm = @(0, 0, 0, 0, 1.0); column_offsets_mm = @(0, 0, 0, 1.0)
+        }
+        $params = @{ ProductId = '94106'; TemplateDirectory = $directory }
+        $template = & $script:GetTemplate @params
+
+        # Cell 20 is bottom row, rightmost column: both offsets apply.
+        $cell20 = $template.Cells | Where-Object { $_.Number -eq 20 }
+        [math]::Abs($cell20.OriginY - (45 + (1.0 * $script:MmToPt)))  | Should -BeLessThan 0.0001
+        [math]::Abs($cell20.OriginX - (468 + (1.0 * $script:MmToPt))) | Should -BeLessThan 0.0001
+
+        # Cell 17 is bottom row, leftmost column: row offset only.
+        $cell17 = $template.Cells | Where-Object { $_.Number -eq 17 }
+        [math]::Abs($cell17.OriginY - (45 + (1.0 * $script:MmToPt))) | Should -BeLessThan 0.0001
+        [math]::Abs($cell17.OriginX - 36.0)                          | Should -BeLessThan 0.0001
+    }
+}
+
+Describe 'Calibration adjustment processor' {
+    BeforeAll {
+        $script:SetCalibration = Join-Path $script:Root 'processors/layout/set-label-template-calibration.ps1'
+
+        function New-WritableTemplate {
+            $directory = Join-Path $TestDrive ([System.Guid]::NewGuid().ToString('N'))
+            New-Item -ItemType Directory -Path $directory -Force | Out-Null
+            $path = Join-Path $directory 'avery-94106.json'
+            Copy-Item (Join-Path $script:TemplateDir 'avery-94106.json') $path
+            return $path
+        }
+    }
+
+    It 'adds to the current value by default' {
+        $path = New-WritableTemplate
+        $before = (Get-Content $path -Raw | ConvertFrom-Json).calibration.row_offsets_mm[4]
+
+        $params = @{ TemplatePath = $path; RowsUpMm = @{ 5 = 0.25 } }
+        $result = & $script:SetCalibration @params
+
+        $result.Rows[4].Before | Should -Be $before
+        $result.Rows[4].After  | Should -Be ([math]::Round($before + 0.25, 4))
+        $result.Rows[4].Delta  | Should -Be 0.25
+    }
+
+    It 'replaces the current value in absolute mode' {
+        $path = New-WritableTemplate
+        $params = @{ TemplatePath = $path; RowsUpMm = @{ 5 = 0.25 }; Absolute = $true }
+        $result = & $script:SetCalibration @params
+        $result.Rows[4].After | Should -Be 0.25
+    }
+
+    It 'zeroes everything on reset' {
+        $path = New-WritableTemplate
+        $params = @{ TemplatePath = $path; Reset = $true }
+        $result = & $script:SetCalibration @params
+
+        $result.GlobalAfter.RightMm | Should -Be 0
+        $result.GlobalAfter.UpMm    | Should -Be 0
+        foreach ($row in $result.Rows)       { $row.After    | Should -Be 0 }
+        foreach ($column in $result.Columns) { $column.After | Should -Be 0 }
+    }
+
+    It 'never touches the derived grid' {
+        $path = New-WritableTemplate
+        $params = @{ TemplatePath = $path; RowsUpMm = @{ 2 = 1.5 }; ColumnsRightMm = @{ 3 = -0.75 }; GlobalRightMm = 2.0 }
+        $null = & $script:SetCalibration @params
+
+        $after = Get-Content $path -Raw | ConvertFrom-Json
+        @($after.grid.column_origins_pt) | Should -Be @(36, 180, 324, 468)
+        @($after.grid.row_origins_pt)    | Should -Be @(639, 490.5, 342, 193.5, 45)
+        $after.cell.width_pt             | Should -Be 117
+        $after.provenance.derived_from   | Should -Match '94106-Prague-QR.pdf'
+    }
+
+    It 'refuses a row or column that does not exist' {
+        $path = New-WritableTemplate
+        $params = @{ TemplatePath = $path; RowsUpMm = @{ 6 = 0.5 } }
+        { & $script:SetCalibration @params } | Should -Throw '*Row 6 does not exist*'
+
+        $params = @{ TemplatePath = $path; ColumnsRightMm = @{ 9 = 0.5 } }
+        { & $script:SetCalibration @params } | Should -Throw '*Column 9 does not exist*'
+    }
+
+    It 'leaves the template untouched when the result would be invalid' {
+        # The validate-then-write order is the point: a calibration that cannot
+        # produce a sheet must not be able to destroy a template that could.
+        $path = New-WritableTemplate
+        $original = Get-Content $path -Raw
+
+        $params = @{ TemplatePath = $path; GlobalRightMm = -50.0 }
+        { & $script:SetCalibration @params } | Should -Throw '*outside*'
+
+        (Get-Content $path -Raw) | Should -BeExactly $original
+    }
+
+    It 'appends to the calibration history rather than replacing it' {
+        $path = New-WritableTemplate
+        $before = @((Get-Content $path -Raw | ConvertFrom-Json).calibration.history).Count
+
+        $params = @{ TemplatePath = $path; RowsUpMm = @{ 1 = 0.1 }; Note = 'test round' }
+        $null = & $script:SetCalibration @params
+
+        $history = @((Get-Content $path -Raw | ConvertFrom-Json).calibration.history)
+        $history.Count | Should -Be ($before + 1)
+        $history[-1].change | Should -Match 'row 1'
+        $history[-1].after  | Should -BeExactly 'test round'
+    }
+}

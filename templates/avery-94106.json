@@ -64,17 +64,23 @@
   "calibration": {
     "unit": "mm",
     "why_mm": "The derived grid above is points, because that is what was extracted from the PDF and it must not be touched. This block is millimetres because it records what the OPERATOR measured on a physical proof, and round-tripping their measurement through a hand-converted point value is where a transcription error would enter. The layout processor does the one conversion, at full double precision.",
-    "sign_convention": "x positive moves the layout RIGHT on the page. y and every row offset positive move it UP the page. row_offsets_mm is parallel to grid.row_origins_pt and is listed TOP ROW FIRST, matching row-major cell numbering: index 0 is the row holding cells 1-4, index 4 is the bottom row holding cells 17-20.",
+    "sign_convention": "x positive moves the layout RIGHT on the page. y and every row offset positive move it UP the page. row_offsets_mm is parallel to grid.row_origins_pt and is listed TOP ROW FIRST; column_offsets_mm is parallel to grid.column_origins_pt and is listed LEFT COLUMN FIRST.",
     "global_offset_mm": {
       "x": -1.675,
       "y": 0.0
     },
     "row_offsets_mm": [
-      0.0,
-      0.0,
-      0.0,
       0.5,
-      0.75
+      0.5,
+      1.0,
+      1.0,
+      1.25
+    ],
+    "column_offsets_mm": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
     ],
     "note": "PRINTER calibration, not a correction to the derived grid. The column and row origins remain exactly as extracted from the physically verified Series 1 sheet and must not be edited to absorb these offsets; keeping them separate is what lets a run on a different printer reset calibration to zero without losing the provenance of the grid. IB0193 WP07.T03 anticipates this: report the observed offset, adjust, reproof.",
     "history": [
@@ -89,6 +95,13 @@
         "by": "operator",
         "change": "global x +1.5 mm (net -1.675 mm); row 4 up 0.5 mm; row 5 (bottom) up 0.75 mm",
         "after": "second plain-paper proof, read on a transillumination rig against blank Avery 94106"
+      },
+      {
+        "on": "2026-09-14",
+        "by": "operator",
+        "mode": "relative",
+        "change": "row 1 +0.5 mm up; row 2 +0.5 mm up; row 3 +1 mm up; row 4 +0.5 mm up; row 5 +0.5 mm up",
+        "after": "Third plain-paper proof, read on the transillumination rig against blank Avery 94106."
       }
     ]
   }

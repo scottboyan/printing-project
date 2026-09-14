@@ -41,9 +41,10 @@ $template = Get-Content -LiteralPath $path -Raw -Encoding UTF8 | ConvertFrom-Jso
 # on a physical proof. This is the single place the conversion happens.
 $pointsPerMillimetre = 72.0 / 25.4
 
-$offsetX    = 0.0
-$offsetY    = 0.0
-$rowOffsets = @()
+$offsetX       = 0.0
+$offsetY       = 0.0
+$rowOffsets    = @()
+$columnOffsets = @()
 
 if ($template.PSObject.Properties.Name -contains 'calibration') {
     $calibration = $template.calibration
@@ -55,15 +56,22 @@ if ($template.PSObject.Properties.Name -contains 'calibration') {
     $offsetX = [double]$calibration.global_offset_mm.x * $pointsPerMillimetre
     $offsetY = [double]$calibration.global_offset_mm.y * $pointsPerMillimetre
 
+    # An offset array that does not line up with its axis would silently apply the
+    # wrong correction to the wrong row or column, which is exactly the class of
+    # error a calibration pass exists to remove.
     if ($calibration.PSObject.Properties.Name -contains 'row_offsets_mm') {
         $rowOffsets = @($calibration.row_offsets_mm | ForEach-Object { [double]$_ * $pointsPerMillimetre })
-
-        # A row-offset array that does not line up with the rows would silently apply
-        # the wrong correction to the wrong row, which is exactly the class of error
-        # a calibration pass exists to remove.
         $rowCount = @($template.grid.row_origins_pt).Count
         if ($rowOffsets.Count -ne $rowCount) {
             throw "Template $path declares $($rowOffsets.Count) row offsets but the grid has $rowCount rows. row_offsets_mm must be parallel to grid.row_origins_pt, top row first."
+        }
+    }
+
+    if ($calibration.PSObject.Properties.Name -contains 'column_offsets_mm') {
+        $columnOffsets = @($calibration.column_offsets_mm | ForEach-Object { [double]$_ * $pointsPerMillimetre })
+        $columnCount = @($template.grid.column_origins_pt).Count
+        if ($columnOffsets.Count -ne $columnCount) {
+            throw "Template $path declares $($columnOffsets.Count) column offsets but the grid has $columnCount columns. column_offsets_mm must be parallel to grid.column_origins_pt, left column first."
         }
     }
 }
@@ -81,9 +89,15 @@ foreach ($rowOrigin in $template.grid.row_origins_pt) {
     # page, which is +y in PDF-native coordinates.
     $rowOffset = if ($rowIndex -lt $rowOffsets.Count) { $rowOffsets[$rowIndex] } else { 0.0 }
 
+    $columnIndex = -1
     foreach ($columnOrigin in $template.grid.column_origins_pt) {
+        $columnIndex++
         $number++
-        $x = [double]$columnOrigin + $offsetX
+        # Per-column correction on top of the global one. Positive moves the column
+        # RIGHT across the page, which is +x in PDF-native coordinates.
+        $columnOffset = if ($columnIndex -lt $columnOffsets.Count) { $columnOffsets[$columnIndex] } else { 0.0 }
+
+        $x = [double]$columnOrigin + $offsetX + $columnOffset
         $y = [double]$rowOrigin + $offsetY + $rowOffset
         $cells.Add([pscustomobject][ordered]@{
             Number   = $number
@@ -141,9 +155,10 @@ return [pscustomobject][ordered]@{
     CellsPerSheet  = [int]$template.grid.cells_per_sheet
     CornerRadius   = [double]$template.cell.corner_radius_pt
     CalibrationOffset = [pscustomobject][ordered]@{
-        X          = $offsetX
-        Y          = $offsetY
-        RowOffsets = $rowOffsets
+        X             = $offsetX
+        Y             = $offsetY
+        RowOffsets    = $rowOffsets
+        ColumnOffsets = $columnOffsets
     }
     Cells          = $cells.ToArray()
     Margins        = [pscustomobject][ordered]@{
