@@ -31,16 +31,41 @@ if (-not (Test-Path -LiteralPath $path)) {
 
 $template = Get-Content -LiteralPath $path -Raw -Encoding UTF8 | ConvertFrom-Json
 
-# Printer calibration offset, applied to every origin as the cells are materialized.
-# It is kept separate from the derived origins on purpose: the grid in the template
-# is the geometry extracted from the physically verified Series 1 sheet, and this is
-# a per-printer correction sitting on top of it. Absorbing one into the other would
+# Printer calibration, applied to every origin as the cells are materialized. It is
+# kept separate from the derived origins on purpose: the grid in the template is the
+# geometry extracted from the physically verified Series 1 sheet, and this is a
+# per-printer correction sitting on top of it. Absorbing one into the other would
 # destroy the provenance of both.
-$offsetX = 0.0
-$offsetY = 0.0
-if ($template.PSObject.Properties.Name -contains 'calibration_offset_pt') {
-    $offsetX = [double]$template.calibration_offset_pt.x
-    $offsetY = [double]$template.calibration_offset_pt.y
+#
+# The calibration block is in MILLIMETRES because that is what the operator measures
+# on a physical proof. This is the single place the conversion happens.
+$pointsPerMillimetre = 72.0 / 25.4
+
+$offsetX    = 0.0
+$offsetY    = 0.0
+$rowOffsets = @()
+
+if ($template.PSObject.Properties.Name -contains 'calibration') {
+    $calibration = $template.calibration
+
+    if ($calibration.unit -ne 'mm') {
+        throw "Template $path declares calibration unit '$($calibration.unit)'; this processor understands 'mm' only."
+    }
+
+    $offsetX = [double]$calibration.global_offset_mm.x * $pointsPerMillimetre
+    $offsetY = [double]$calibration.global_offset_mm.y * $pointsPerMillimetre
+
+    if ($calibration.PSObject.Properties.Name -contains 'row_offsets_mm') {
+        $rowOffsets = @($calibration.row_offsets_mm | ForEach-Object { [double]$_ * $pointsPerMillimetre })
+
+        # A row-offset array that does not line up with the rows would silently apply
+        # the wrong correction to the wrong row, which is exactly the class of error
+        # a calibration pass exists to remove.
+        $rowCount = @($template.grid.row_origins_pt).Count
+        if ($rowOffsets.Count -ne $rowCount) {
+            throw "Template $path declares $($rowOffsets.Count) row offsets but the grid has $rowCount rows. row_offsets_mm must be parallel to grid.row_origins_pt, top row first."
+        }
+    }
 }
 
 # Materialize the cells as the Cartesian product of the row and column origins, in
@@ -49,11 +74,17 @@ if ($template.PSObject.Properties.Name -contains 'calibration_offset_pt') {
 # loop is the outer one.
 $cells = [System.Collections.Generic.List[object]]::new()
 $number = 0
+$rowIndex = -1
 foreach ($rowOrigin in $template.grid.row_origins_pt) {
+    $rowIndex++
+    # Per-row correction on top of the global one. Positive moves the row UP the
+    # page, which is +y in PDF-native coordinates.
+    $rowOffset = if ($rowIndex -lt $rowOffsets.Count) { $rowOffsets[$rowIndex] } else { 0.0 }
+
     foreach ($columnOrigin in $template.grid.column_origins_pt) {
         $number++
         $x = [double]$columnOrigin + $offsetX
-        $y = [double]$rowOrigin + $offsetY
+        $y = [double]$rowOrigin + $offsetY + $rowOffset
         $cells.Add([pscustomobject][ordered]@{
             Number   = $number
             OriginX  = [double]$x
@@ -109,7 +140,11 @@ return [pscustomobject][ordered]@{
     Rows           = [int]$template.grid.rows
     CellsPerSheet  = [int]$template.grid.cells_per_sheet
     CornerRadius   = [double]$template.cell.corner_radius_pt
-    CalibrationOffset = [pscustomobject][ordered]@{ X = $offsetX; Y = $offsetY }
+    CalibrationOffset = [pscustomobject][ordered]@{
+        X          = $offsetX
+        Y          = $offsetY
+        RowOffsets = $rowOffsets
+    }
     Cells          = $cells.ToArray()
     Margins        = [pscustomobject][ordered]@{
         Left   = ($leftEdges   | Measure-Object -Minimum).Minimum

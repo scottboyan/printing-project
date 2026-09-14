@@ -75,9 +75,20 @@ $template = & $getTemplate @params
 $perSheet = $template.CellsPerSheet
 Write-Host "  [2/5] template $($template.ProductName): $perSheet cells, margins L$($template.Margins.Left) R$($template.Margins.Right) T$($template.Margins.Top) B$($template.Margins.Bottom) pt"
 $offset = $template.CalibrationOffset
+$mm = 72.0 / 25.4
 if ($offset.X -ne 0 -or $offset.Y -ne 0) {
-    Write-Host ("        calibration offset applied: x {0:+0.##;-0.##;0} pt, y {1:+0.##;-0.##;0} pt ({2:0.###} in, {3:0.###} in)" -f `
-        $offset.X, $offset.Y, ($offset.X / 72), ($offset.Y / 72)) -ForegroundColor Cyan
+    Write-Host ("        calibration, global : x {0:+0.###;-0.###;0} mm, y {1:+0.###;-0.###;0} mm" -f `
+        ($offset.X / $mm), ($offset.Y / $mm)) -ForegroundColor Cyan
+}
+$rowIndex = 0
+foreach ($rowOffset in $offset.RowOffsets) {
+    $rowIndex++
+    if ($rowOffset -ne 0) {
+        $firstCell = (($rowIndex - 1) * $template.Columns) + 1
+        $lastCell  = $rowIndex * $template.Columns
+        Write-Host ("        calibration, row {0} : {1:+0.###;-0.###;0} mm up (cells {2}-{3})" -f `
+            $rowIndex, ($rowOffset / $mm), $firstCell, $lastCell) -ForegroundColor Cyan
+    }
 }
 
 # [int] is deliberate: [math]::Ceiling returns a double, which serializes into
