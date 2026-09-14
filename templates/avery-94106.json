@@ -156,6 +156,13 @@
         "after": "Fifth proof: whole grid 0.4 mm right. Operator called registration good at this point."
       }
     ],
-    "undone": []
+    "undone": [],
+    "measured_through": {
+      "application": "Microsoft Edge built-in PDF viewer",
+      "os": "Windows 11",
+      "scaling": "printed at 100% with fit-to-page disabled; every emitted PDF also pins /PrintScaling /None (KDR-14)",
+      "note": "These offsets are only valid for THIS path. The calibration has absorbed the whole chain - the viewer's rendering, its scale setting, the printer driver, the printer, and the paper's behaviour through the fuser. Printing the same PDFs from a different application, or on a different printer, invalidates them: reset with -Reset and reproof rather than assuming they carry over.",
+      "residual_scale": "The per-row corrections fit a straight line with slope 0.382% and residuals under 0.15 mm, meaning the printed image runs about 0.38% tall over the page height - roughly 3 pt end to end. That is consistent with ordinary laser feed and fuser stretch, not with viewer scaling: a fit-to-page would have produced several percent, which is 8 to 16 mm of drift at the bottom row and would have been obvious on the first proof."
+    }
   }
 }
