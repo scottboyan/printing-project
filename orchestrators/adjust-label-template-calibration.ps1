@@ -191,10 +191,14 @@ try {
         TemplatePath   = $workingPath
         RowsUpMm       = $RowsUp
         ColumnsRightMm = $ColumnsRight
-        GlobalRightMm  = $GlobalRight
-        GlobalUpMm     = $GlobalUp
-        GuidesInwardMm = $GuidesInward
     }
+    # Forwarded ONLY when the operator actually passed them, so that -Absolute sets
+    # what they named and leaves everything else alone. Passing these unconditionally
+    # would hand the processor a 0.0 default it could not distinguish from a
+    # deliberate zero.
+    if ($PSBoundParameters.ContainsKey('GlobalRight'))  { $params['GlobalRightMm']  = $GlobalRight }
+    if ($PSBoundParameters.ContainsKey('GlobalUp'))     { $params['GlobalUpMm']     = $GlobalUp }
+    if ($PSBoundParameters.ContainsKey('GuidesInward')) { $params['GuidesInwardMm'] = $GuidesInward }
     if ($Absolute) { $params['Absolute'] = $true }
     if ($Reset)    { $params['Reset']    = $true }
     if ($Undo)     { $params['Undo']     = $true }

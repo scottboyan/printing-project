@@ -501,3 +501,73 @@ Describe 'Calibration orchestrator read-only modes' {
         (Get-Content $path -Raw) | Should -BeExactly $before
     }
 }
+
+Describe 'Absolute mode touches only what the caller named' {
+    BeforeAll {
+        $script:SetAbs = Join-Path $script:Root 'processors/layout/set-label-template-calibration.ps1'
+        $script:AdjAbs = Join-Path $script:Root 'orchestrators/adjust-label-template-calibration.ps1'
+
+        function New-AbsTemplate {
+            $directory = Join-Path $TestDrive ([System.Guid]::NewGuid().ToString('N'))
+            New-Item -ItemType Directory -Path $directory -Force | Out-Null
+            Copy-Item (Join-Path $script:TemplateDir 'avery-94106.json') (Join-Path $directory 'avery-94106.json')
+            return $directory
+        }
+    }
+
+    It 'setting the guide inset absolutely does not wipe the global offset' {
+        # The bug this guards: an unpassed GlobalRightMm sits at its 0.0 default, and
+        # absolute mode used to write that default over a calibration built across
+        # five physical proof rounds. The call succeeded and the damage was invisible
+        # until the next sheet of stock.
+        $directory = New-AbsTemplate
+        $path = Join-Path $directory 'avery-94106.json'
+        $before = Get-Content $path -Raw | ConvertFrom-Json
+
+        $params = @{ TemplatePath = $path; GuidesInwardMm = 1.5875; Absolute = $true }
+        $null = & $script:SetAbs @params
+
+        $after = Get-Content $path -Raw | ConvertFrom-Json
+        $after.calibration.guide_inset_mm       | Should -Be 1.5875
+        $after.calibration.global_offset_mm.x   | Should -Be $before.calibration.global_offset_mm.x
+        $after.calibration.global_offset_mm.y   | Should -Be $before.calibration.global_offset_mm.y
+        ($after.calibration.row_offsets_mm -join ',')    | Should -BeExactly ($before.calibration.row_offsets_mm -join ',')
+        ($after.calibration.column_offsets_mm -join ',') | Should -BeExactly ($before.calibration.column_offsets_mm -join ',')
+    }
+
+    It 'setting one row absolutely leaves the other rows alone' {
+        $directory = New-AbsTemplate
+        $path = Join-Path $directory 'avery-94106.json'
+        $before = Get-Content $path -Raw | ConvertFrom-Json
+
+        $params = @{ TemplatePath = $path; RowsUpMm = @{ 3 = 0.0 }; Absolute = $true }
+        $null = & $script:SetAbs @params
+
+        $after = Get-Content $path -Raw | ConvertFrom-Json
+        $after.calibration.row_offsets_mm[2]  | Should -Be 0
+        $after.calibration.row_offsets_mm[0]  | Should -Be $before.calibration.row_offsets_mm[0]
+        $after.calibration.row_offsets_mm[4]  | Should -Be $before.calibration.row_offsets_mm[4]
+        $after.calibration.global_offset_mm.x | Should -Be $before.calibration.global_offset_mm.x
+    }
+
+    It 'still sets a global offset absolutely when that is what was asked' {
+        $directory = New-AbsTemplate
+        $path = Join-Path $directory 'avery-94106.json'
+        $params = @{ TemplatePath = $path; GlobalRightMm = 0.0; Absolute = $true }
+        $null = & $script:SetAbs @params
+        (Get-Content $path -Raw | ConvertFrom-Json).calibration.global_offset_mm.x | Should -Be 0
+    }
+
+    It 'forwards only bound parameters through the orchestrator' {
+        $directory = New-AbsTemplate
+        $path = Join-Path $directory 'avery-94106.json'
+        $before = Get-Content $path -Raw | ConvertFrom-Json
+
+        $params = @{ ProductId = '94106'; TemplateDirectory = $directory; GuidesInward = 1.5875; Absolute = $true }
+        & $script:AdjAbs @params | Out-Null
+
+        $after = Get-Content $path -Raw | ConvertFrom-Json
+        $after.calibration.guide_inset_mm     | Should -Be 1.5875
+        $after.calibration.global_offset_mm.x | Should -Be $before.calibration.global_offset_mm.x
+    }
+}

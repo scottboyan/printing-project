@@ -10,7 +10,7 @@
     "extracted": "2026-09-13",
     "note": "The twenty label placements were extracted from the Series 1 sheet's explicit transformation matrices, not from a product datasheet. That sheet was physically printed on real Avery 94106 stock and confirmed clean by the operator on 2026-08-11, so this grid is known to register on the operator's printer rather than inferred from a specification.",
     "drift_note": "The extracted values carried at most 0.1 pt of rounding drift from Avery's exporter (0.0014 in, invisible). The values here are the normalized figures with that drift removed.",
-    "unresolved": "The extraction cannot settle which part of the 117 pt cell is bleed and which is die-cut. All content is therefore confined to the conservative centred safe area below, and a physical overlay proof on plain paper is required before label stock is loaded (KDR-21)."
+    "resolved": "IB0193 R3 left open which part of the 117 pt cell is bleed and which is die-cut, and required a conservative centred safe area because of it. SETTLED 2026-09-14 by physical measurement: calipers read 38.17 mm on a peeled, applied label, against 38.10 mm for a nominal 1.5 inch. The die-cut is 1.5 in = 108 pt square, and the inset from the 117 pt cell box is therefore exactly 4.5 pt per side. That 4.5 pt is the same number as cell.offset_x_pt, which means the grid origins extracted from the Series 1 sheet ARE the die-cut corners, and the 117 pt cell box is the die-cut plus exactly 4.5 pt of bleed on every side. All three figures are round by design, which is the shape a real stock specification takes."
   },
   "page": {
     "width_pt": 612,
@@ -52,7 +52,8 @@
     "offset_y_pt": 4,
     "width_pt": 100,
     "height_pt": 100,
-    "note": "KDR-13: all content lives inside this centred 100 x 100 pt box within the 117 pt cell."
+    "note": "KDR-13: all content lives inside this centred 100 x 100 pt box within the 117 pt cell.",
+    "headroom_note": "With the die-cut now known to be 108 pt, this 100 pt safe area leaves 4 pt (1.41 mm) of clearance per side. That is deliberate and sufficient - the Series 2 run printed with a tightest ink-to-kerf clearance of 1.314 mm against a measured registration residual of 0.150 mm. KDR-13 fixes the 100 pt box, so it is not changed here; a future brief now has the measurement it needs to revisit it on purpose rather than by guess."
   },
   "derived_margins_pt": {
     "left": 31.5,
@@ -82,8 +83,8 @@
       0.0,
       0.0
     ],
-    "guide_inset_mm": 1.7,
-    "guide_inset_note": "How far inside the 117 pt cell box the physical die-cut sits, measured by the operator on a transillumination rig. IB0193 R3 records that the extraction could not settle which part of the cell is bleed and which is die-cut; this is the empirical answer for this stock.",
+    "guide_inset_mm": 1.5875,
+    "guide_inset_note": "Distance from the 117 pt cell box in to the physical die-cut, per side. Now known exactly: 4.5 pt = 1.5875 mm, giving a 1.5 in die-cut. Arrived at over five transillumination proofs (which converged on 1.7 mm by eye) and then settled with calipers on a peeled label.",
     "note": "PRINTER calibration, not a correction to the derived grid. The column and row origins remain exactly as extracted from the physically verified Series 1 sheet and must not be edited to absorb these offsets; keeping them separate is what lets a run on a different printer reset calibration to zero without losing the provenance of the grid. IB0193 WP07.T03 anticipates this: report the observed offset, adjust, reproof.",
     "history": [
       {
@@ -154,16 +155,33 @@
           "guide_inset_mm": 1.7
         },
         "after": "Fifth proof: whole grid 0.4 mm right. Operator called registration good at this point."
+      },
+      {
+        "on": "2026-09-14",
+        "by": "operator",
+        "mode": "absolute",
+        "change": "guide inset set to 1.5875 mm",
+        "state_after": {
+          "global_x": -1.775,
+          "global_y": 0.0,
+          "rows": [
+            0.5,
+            0.5,
+            1.0,
+            1.0,
+            1.25
+          ],
+          "columns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guide_inset_mm": 1.5875
+        },
+        "after": "Die-cut settled empirically: calipers read 38.17 mm on a peeled, applied label against 38.10 mm for a nominal 1.5 in. Inset set to exactly 4.5 pt per side, which resolves IB0193 R3."
       }
     ],
-    "undone": [],
-    "measured_through": {
-      "application": "Microsoft Edge built-in PDF viewer",
-      "os": "Windows 11",
-      "scaling": "printed at 100% with fit-to-page disabled; every emitted PDF also pins /PrintScaling /None (KDR-14)",
-      "note": "These offsets are only valid for THIS path. The calibration has absorbed the whole chain - the viewer's rendering, its scale setting, the printer driver, the printer, and the paper's behaviour through the fuser. Printing the same PDFs from a different application, or on a different printer, invalidates them: reset with -Reset and reproof rather than assuming they carry over.",
-      "residual_scale": "The per-row corrections fit a straight line with slope 0.382% and residuals under 0.15 mm, meaning the printed image runs about 0.38% tall over the page height - roughly 3 pt end to end. That is consistent with ordinary laser feed and fuser stretch, not with viewer scaling: a fit-to-page would have produced several percent, which is 8 to 16 mm of drift at the bottom row and would have been obvious on the first proof.",
-      "printer": "HP LaserJet Pro 200 color M251nw"
-    }
+    "undone": []
   }
 }

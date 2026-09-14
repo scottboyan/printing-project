@@ -152,8 +152,17 @@ else {
 
     if ($Reset) { $changes.Add('reset to zero') }
 
-    $new.global_x = if ($Absolute) { $GlobalRightMm } else { $new.global_x + $GlobalRightMm }
-    $new.global_y = if ($Absolute) { $GlobalUpMm }    else { $new.global_y + $GlobalUpMm }
+    # In absolute mode, only the values the caller ACTUALLY PASSED are set. Without
+    # this, '-GuidesInward 1.5875 -Absolute' would take the unpassed GlobalRightMm at
+    # its 0.0 default and silently wipe a calibration built over five proof rounds -
+    # the exact shape of failure this repository keeps guarding against, where the
+    # call succeeds and the damage is only visible on the next sheet of stock.
+    if ($PSBoundParameters.ContainsKey('GlobalRightMm')) {
+        $new.global_x = if ($Absolute) { $GlobalRightMm } else { $new.global_x + $GlobalRightMm }
+    }
+    if ($PSBoundParameters.ContainsKey('GlobalUpMm')) {
+        $new.global_y = if ($Absolute) { $GlobalUpMm } else { $new.global_y + $GlobalUpMm }
+    }
     if ($GlobalRightMm -ne 0) { $changes.Add("global x {0:+0.###;-0.###} mm" -f $GlobalRightMm) }
     if ($GlobalUpMm    -ne 0) { $changes.Add("global y {0:+0.###;-0.###} mm up" -f $GlobalUpMm) }
 
@@ -170,9 +179,10 @@ else {
         $changes.Add("column $key {0:+0.###;-0.###} mm right" -f $value)
     }
 
-    if ($GuidesInwardMm -ne 0 -or ($Absolute -and $PSBoundParameters.ContainsKey('GuidesInwardMm'))) {
+    if ($PSBoundParameters.ContainsKey('GuidesInwardMm')) {
         $new.guide_inset_mm = if ($Absolute) { $GuidesInwardMm } else { $new.guide_inset_mm + $GuidesInwardMm }
-        $changes.Add("guides {0:+0.###;-0.###} mm inward" -f $GuidesInwardMm)
+        if ($Absolute) { $changes.Add("guide inset set to {0:0.####} mm" -f $GuidesInwardMm) }
+        elseif ($GuidesInwardMm -ne 0) { $changes.Add("guides {0:+0.###;-0.###} mm inward" -f $GuidesInwardMm) }
     }
 }
 
