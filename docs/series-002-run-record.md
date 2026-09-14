@@ -35,6 +35,24 @@ The gate was also exercised against deliberately corrupted copies — two codes
 swapped between cells, a registry code replaced with a valid but unprinted one, and
 a registry entry removed — and refused all three with a non-zero exit.
 
+## The CTA label (KDR-18)
+
+The QR label is one half of a two-label system; the other half carries the invitation
+copy and no code. That CTA label was reprinted unchanged from the Series 1 export,
+`evidence/f006-c06-m04-avery-label-sheets/94106-Prague-CTA.pdf` in
+`play-engine-project`, and is out of this repository's scope per KDR-18.
+
+It is the Prague and Vienna trilingual label, chipped `EN` / `CZ` / `AT`, and these
+cards went to London. **The operator decided on 2026-09-14 to retain it for Series 2**
+on three grounds: it is a proven export that has physically printed clean, it carries
+English, and designing a replacement was not reachable inside the mail deadline. Its
+ink clears the calibrated die-cut on all twenty cells with 1.22 mm to spare, so it
+needed no adjustment for the new calibration.
+
+The decision was made against the deadline rather than on the merits of the copy. A
+locale set chosen for the destination is preferred and is carried forward as a
+Series 3 item — see IB0193, Open Items.
+
 ## Physical verification (WP07.T03, T05)
 
 The layout was calibrated over five rounds against plain-paper proofs read on a
@@ -72,12 +90,24 @@ slope 0.382%, meaning the printed image runs about 0.38% tall over the page - ro
 3 pt end to end, consistent with ordinary laser feed and fuser stretch rather than
 viewer scaling.
 
-One open question for the next series: the die-cut was measured at 37.875 mm
-(1.4911 in) using a 1.7 mm inset. A 1.5 in die-cut would need a 1.5875 mm inset, and
-that inset is exactly the cell box's own 4.5 pt offset from the grid origin - which
-would mean the Avery origins ARE the die-cut corners and the 117 pt cell is that plus
-4.5 pt of bleed per side. The difference is 0.11 mm and did not matter here. It is
-worth settling before the next run.
+The die-cut is settled, and it resolves IB0193 R3. During the proof rounds it read
+37.875 mm (1.4911 in) using a 1.7 mm inset, which raised the question of whether the
+true figure was a round 1.5 in. Calipers on a peeled, applied label read 38.17 mm
+against 38.10 mm for a nominal 1.5 in, so the inset was set to exactly 4.5 pt
+(1.5875 mm) per side and the 1.7 mm was 0.11 mm of reading error against a 1.2 mm
+guide line on a backlit rig. The geometry is therefore:
+
+```text
+die-cut    108 pt  = 38.100 mm = 1.5000 in
+bleed      4.5 pt  =  1.5875 mm per side
+cell box   117 pt  = 41.275 mm = 1.6250 in
+```
+
+Three round numbers, which is the shape a real stock specification takes. The
+consequence worth carrying forward is that **the grid origins extracted from the
+Series 1 sheet are the die-cut corners themselves**, and the 117 pt cell box is that
+die-cut plus exactly 4.5 pt of bleed on every side. Nothing here needs to be
+re-measured for the next run on this stock.
 
 ## Closing
 
