@@ -7,7 +7,7 @@
 | **Series status** | `closed` |
 | **Closed (UTC)** | 2026-09-14T01:13:05Z |
 | **Operator** | Scott Boyan |
-| **Printer** | Not recorded at close-out - see Notes |
+| **Printer** | HP LaserJet Pro 200 color M251nw |
 | **Stock** | Avery 94106, US Letter, 4 x 5 labels per sheet, 2 sheets |
 | **Print path** | Microsoft Edge built-in PDF viewer on Windows 11 |
 | **Scaling** | 100%, fit-to-page disabled; PDFs pin /PrintScaling /None |
@@ -56,9 +56,10 @@ scanned URL string is correct, not that the page is useful.
 
 ## Notes
 
-The printer model was not captured at close-out and should be added here. It matters
-because the calibration in templates/avery-94106.json is only valid for this exact
-path - viewer, driver, printer and stock together.
+The calibration in templates/avery-94106.json is only valid for this exact path -
+Microsoft Edge's PDF viewer, the HP driver, this M251nw, and this stock together.
+Any change to that chain invalidates it: reset the calibration and reproof rather
+than assuming the numbers carry over.
 
 Registration was calibrated over five plain-paper rounds on a transillumination rig
 before any stock was loaded. Tightest ink-to-kerf clearance on the final layout is
